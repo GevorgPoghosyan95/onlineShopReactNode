@@ -1,12 +1,40 @@
 import logo from './logo.svg';
 import './App.css';
+import {BrowserRouter} from "react-router-dom";
+import React, {useContext, useEffect, useState} from "react";
+import AppRouter from "./components/AppRouter";
+import NavBar from "./components/NavBar";
+import {observer} from "mobx-react-lite";
+import {Context} from "./index";
+import {check} from "./http/userApi";
+import {load} from "dotenv";
+import {Spinner} from "react-bootstrap";
 
-function App() {
+const App = observer( ()=> {
+    const {user} = useContext(Context)
+    const [loading,setLoading] = useState(true)
+
+    useEffect( ()=>{
+        if(localStorage.getItem('token')){
+            check().then(data=>{
+                user.setUser(true)
+                user.setIsAuth(true)
+            }).finally(()=>setLoading(false))
+        }else{
+            setLoading(false)
+        }
+    },[])
+
+    if(loading){
+        return <Spinner animation={"grow"}/>
+    }
+
   return (
-    <div className="App">
-
-    </div>
+      <BrowserRouter>
+          <NavBar />
+          <AppRouter/>
+      </BrowserRouter>
   );
-}
+})
 
 export default App;
